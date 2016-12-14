@@ -1111,3 +1111,33 @@ makeGUI();
 generateData(true);
 reset(true);
 hideControls();
+
+function nodeToString(node: nn.Node) {
+  if (node.inputLinks.length == 0) {
+    return node.id;
+  }
+  const inputs = node.inputLinks.map(inputLink => `${inputLink.weight.toFixed(2)} * ${nodeToString(inputLink.source)}`);
+  const inputStr = [...inputs, node.bias.toFixed(2)].join(' + ');
+  switch (node.activation) {
+    case nn.Activations.LINEAR:
+      return `(${inputStr})`;
+    case nn.Activations.TANH:
+      return `Math.tanh(${inputStr})`;
+    case nn.Activations.SIGMOID:
+      return `sigmoid(${inputStr})`;
+    case nn.Activations.RELU:
+      return `relu(${inputStr})`;    
+    default: 
+      return '?'; 
+  }
+}
+
+function inputNames() {
+  return network[0].map(node => node.id).join(', ');
+}
+
+function networkToString() {
+  return `(${inputNames()}) => ${nodeToString(network[network.length - 1][0])}`;
+}
+
+window['printNetwork'] = () => console.log(networkToString());
